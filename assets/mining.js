@@ -74,7 +74,7 @@ function appendLog(text) {
 	element.value += `${time.getHours().toString().padStart(2, "0")}:${time.getMinutes().toString().padStart(2, "0")}:${time.getSeconds().toString().padStart(2, "0")}.${time.getMilliseconds().toString().padStart(3, "0")}: ${text}\n`
 
 	const maxScroll = element.scrollHeight - element.clientHeight
-	if (maxScroll-element.scrollTop < 200) {
+	if (maxScroll-element.scrollTop < 50) {
 	element.scrollTo({ top: maxScroll, behavior: "smooth" })
 	}
 }
