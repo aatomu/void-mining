@@ -44,14 +44,14 @@ async function main() {
 			const hash = await generateHash(nonce, prevHash, log)
 			if (isMatchChainPrefix(hash)) {
 				console.log(`no.${i} nonce:${nonce}, hash:${hash}`)
-				appendLog(`no.${i} nonce:${nonce}, hash:${hash}`)
+				appendMiningLog(`no.${i} nonce:${nonce}, hash:${hash}`)
 				prevHash = hash
 				hashList.push(hash)
 				break
 			}
 			if (nonce % 10000 == 0) {
 				console.log(`no.${i} nonce:${nonce} calc...`)
-				appendLog(`no.${i} nonce:${nonce} calc...`)
+				appendMiningLog(`no.${i} nonce:${nonce} calc...`)
 			}
 			nonce++
 		}
@@ -63,12 +63,31 @@ async function main() {
  *
  * @param {string} text log text
  */
-function appendLog(text) {
+function appendMiningLog(text) {
 	/**
 	 * @type {HTMLTextAreaElement}
 	 */
 	//@ts-ignore
 	const element = document.getElementById("mining")
+	const time = new Date()
+
+	element.value += `${time.getHours().toString().padStart(2, "0")}:${time.getMinutes().toString().padStart(2, "0")}:${time.getSeconds().toString().padStart(2, "0")}.${time.getMilliseconds().toString().padStart(3, "0")}: ${text}\n`
+
+	const maxScroll = element.scrollHeight - element.clientHeight
+	if (maxScroll-element.scrollTop < 50) {
+	element.scrollTo({ top: maxScroll, behavior: "smooth" })
+	}
+}
+/**
+ *
+ * @param {string} text log text
+ */
+function appendStatusLog(text) {
+	/**
+	 * @type {HTMLTextAreaElement}
+	 */
+	//@ts-ignore
+	const element = document.getElementById("status")
 	const time = new Date()
 
 	element.value += `${time.getHours().toString().padStart(2, "0")}:${time.getMinutes().toString().padStart(2, "0")}:${time.getSeconds().toString().padStart(2, "0")}.${time.getMilliseconds().toString().padStart(3, "0")}: ${text}\n`
@@ -87,6 +106,16 @@ function connectWebsocket() {
 	})
 	ws.addEventListener("message",(e) => {
 		console.log("message",e)
+		if (typeof e.data != 'string') {
+			return;
+		}
+		const event = JSON.parse(e.data);
+
+		switch (event.op) {
+			case "now_transactions": {
+				appendStatusLog(event.data)
+			}
+		}
 	})
 	ws.addEventListener("error",(e) => {
 		console.log("error",e)

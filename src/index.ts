@@ -37,8 +37,8 @@ export default {
 				prevTransactionLength = transactions.length;
 				server.send(
 					JSON.stringify({
-						op: 'result',
-						transactions: transactions,
+						op: 'now_transactions',
+						data: transactions,
 					})
 				);
 				return;
@@ -55,8 +55,8 @@ export default {
 						const transactions = await mem.get<transaction[]>('transactions');
 						server.send(
 							JSON.stringify({
-								op: 'result',
-								transactions: transactions,
+								op: 'now_transactions',
+								data: transactions,
 							})
 						);
 						return;
@@ -71,7 +71,7 @@ export default {
 							server.send(
 								JSON.stringify({
 									op: 'new_transaction',
-									success: true,
+									data: true,
 								})
 							);
 							return;
@@ -82,7 +82,7 @@ export default {
 						server.send(
 							JSON.stringify({
 								op: 'new_transaction',
-								success: true,
+								data: true,
 							})
 						);
 						return;
@@ -92,7 +92,7 @@ export default {
 						server.send(
 							JSON.stringify({
 								op: 'delete',
-								success: ok,
+								data: ok,
 							})
 						);
 						return;
