@@ -11,8 +11,45 @@
  * Learn more at https://developers.cloudflare.com/workers/
  */
 
+interface transaction {
+	date: number;
+	text: string;
+}
+
 export default {
 	async fetch(request, env, ctx): Promise<Response> {
 		return new Response('Hello World!');
 	},
 } satisfies ExportedHandler<Env>;
+
+class Memory {
+	cache: Cache;
+
+	constructor() {
+		this.cache = caches.default;
+	}
+
+	async get<T>(key: string): Promise<T | undefined> {
+		const req = new Request(`https://example.com/${key}`);
+		const result: T | undefined = await this.cache.match(req).then((res: Response | undefined) => {
+			if (!res) {
+				return undefined;
+			}
+			return res.json();
+		});
+		return result;
+	}
+
+	async set(key: string, value: object): Promise<void> {
+		const req = new Request(`https://example.com/${key}`);
+		const res = new Response(JSON.stringify(value));
+		await this.cache.put(req, res);
+		return;
+	}
+
+	async delete(key: string): Promise<boolean> {
+		const req = new Request(`https://example.com/${key}`);
+		const ok = await this.cache.delete(req);
+		return ok;
+	}
+}
