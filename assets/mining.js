@@ -74,8 +74,8 @@ function appendMiningLog(text) {
 	element.value += `${time.getHours().toString().padStart(2, "0")}:${time.getMinutes().toString().padStart(2, "0")}:${time.getSeconds().toString().padStart(2, "0")}.${time.getMilliseconds().toString().padStart(3, "0")}: ${text}\n`
 
 	const maxScroll = element.scrollHeight - element.clientHeight
-	if (maxScroll-element.scrollTop < 50) {
-	element.scrollTo({ top: maxScroll, behavior: "smooth" })
+	if (maxScroll - element.scrollTop < 50) {
+		element.scrollTo({ top: maxScroll, behavior: "smooth" })
 	}
 }
 /**
@@ -93,37 +93,53 @@ function appendStatusLog(text) {
 	element.value += `${time.getHours().toString().padStart(2, "0")}:${time.getMinutes().toString().padStart(2, "0")}:${time.getSeconds().toString().padStart(2, "0")}.${time.getMilliseconds().toString().padStart(3, "0")}: ${text}\n`
 
 	const maxScroll = element.scrollHeight - element.clientHeight
-	if (maxScroll-element.scrollTop < 50) {
-	element.scrollTo({ top: maxScroll, behavior: "smooth" })
+	if (maxScroll - element.scrollTop < 50) {
+		element.scrollTo({ top: maxScroll, behavior: "smooth" })
 	}
 }
 
 
 function connectWebsocket() {
 	const ws = new WebSocket("/ws")
-	ws.addEventListener("open",(e) => {
-		console.log("open",e)
+	ws.addEventListener("open", (e) => {
+		console.log("open", e)
 	})
-	ws.addEventListener("message",(e) => {
-		console.log("message",e)
+	ws.addEventListener("message", (e) => {
+		console.log("message", e)
 		if (typeof e.data != 'string') {
 			return;
 		}
 		const event = JSON.parse(e.data);
 
 		switch (event.op) {
-			case "now_transactions": {
+			case "transaction_new": {
 				appendStatusLog(event.data)
 			}
+			default:
+				appendStatusLog(e.data)
 		}
 	})
-	ws.addEventListener("error",(e) => {
-		console.log("error",e)
+	ws.addEventListener("error", (e) => {
+		console.log("error", e)
 	})
-	ws.addEventListener("close",(e) => {
-		console.log("close",e)
+	ws.addEventListener("close", (e) => {
+		console.log("close", e)
 	})
 	return ws
 }
 
 const ws = connectWebsocket()
+
+/**
+ *
+ * @param {any} obj
+ * @returns string
+ */
+function objectToString(obj) {
+	var o = {};
+	const keys = Object.keys(obj).sort();
+	keys.forEach((key) => {
+		o[key] = obj[key];
+	});
+	return JSON.stringify(o);
+}
